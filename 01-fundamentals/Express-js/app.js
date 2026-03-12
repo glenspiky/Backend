@@ -4,8 +4,7 @@ const mongoose = require("mongoose");
 
 const app = express();
 
-const dbURI =
-  "mongodb+srv://glen_barasa:Glen10546.@blog.qw1ttao.mongodb.net/?appName=blog";
+
 mongoose
   .connect(dbURI)
   .then(() => app.listen(3000))
@@ -34,7 +33,7 @@ app.use(morgan("dev"));
 //mongoose and mongo sandbox routes
 
 app.get('/add-blog',(req, res)=>{
-  
+
 })
 
 // app.use((req, res, next) => {
