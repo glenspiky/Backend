@@ -1,12 +1,20 @@
 const express = require("express");
 const morgan = require("morgan");
+const mongoose = require("mongoose");
+
 const app = express();
+
+const dbURI =
+  "mongodb+srv://glen_barasa:Glen10546.@blog.qw1ttao.mongodb.net/?appName=blog";
+mongoose
+  .connect(dbURI)
+  .then(() => app.listen(3000))
+  .catch((err) => console.error(err));
 
 //register view engine
 app.set("view engine", "ejs");
 
 //listen for request
-app.listen(3000);
 
 // app.use((req,res,next)  => {
 //   console.log("new req made");
@@ -21,6 +29,13 @@ app.use(express.static("public"));
 
 //loger
 app.use(morgan("dev"));
+
+
+//mongoose and mongo sandbox routes
+
+app.get('/add-blog',(req, res)=>{
+  
+})
 
 // app.use((req, res, next) => {
 //   console.log("in the next middleware");
