@@ -1,16 +1,19 @@
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, ".env") });
 const express = require("express");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
+const Blog = require("./models/blog");
 
 const app = express();
-
+// console.log("Database URI:", process.env.dbURI);
 
 mongoose
-  .connect(dbURI)
+  .connect(process.env.dbURI)
   .then(() => app.listen(3000))
   .catch((err) => console.error(err));
 
-//register view engine
+//!register view engine
 app.set("view engine", "ejs");
 
 //listen for request
@@ -29,12 +32,40 @@ app.use(express.static("public"));
 //loger
 app.use(morgan("dev"));
 
+//!mongoose and mongo sandbox routes
 
-//mongoose and mongo sandbox routes
+app.get("/add-blog", (req, res) => {
+  const blog = new Blog({
+    title: "new blog",
+    snippet: "about my new blog",
+    body: "more about about my new blog",
+  });
+  blog
+    .save()
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+app.get("/all-blogs", (req, res) => {
+  Blog.find()
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
 
-app.get('/add-blog',(req, res)=>{
-
-})
+app.get("/single-blog", (req, res) => {
+  Blog.findById("69b3e1d9a3e6e64cafa0e94d")
+    .then((result)=>res.send(result))
+    .catch((err) => {
+      console.error(err);
+    });
+});
 
 // app.use((req, res, next) => {
 //   console.log("in the next middleware");
@@ -104,13 +135,13 @@ app.get("/about", (req, res) => {
   // res.sendFile("./Routing/about.html",{root:__dirname})
   res.render("about", { title: "About" });
 });
-//redirects
+//!redirects
 
 app.get("/about-us", (req, res) => {
   res.redirect("/about");
 });
 
-//create blog
+//!create blog
 app.get("/blogs/create", (req, res) => {
   res.render("create", { title: "create" });
 });
