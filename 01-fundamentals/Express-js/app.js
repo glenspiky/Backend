@@ -4,6 +4,7 @@ const express = require("express");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
 const Blog = require("./models/blog");
+const { title } = require("process");
 
 const app = express();
 // console.log("Database URI:", process.env.dbURI);
@@ -26,11 +27,13 @@ app.set("view engine", "ejs");
 //   next()
 // });
 
-//static files
+//?static files
+//send css files
 app.use(express.static("public"));
-
 //loger
 app.use(morgan("dev"));
+//for accepting form data
+app.use(express.urlencoded({ extended: true }));
 
 //!mongoose and mongo sandbox routes
 
@@ -61,7 +64,7 @@ app.get("/all-blogs", (req, res) => {
 
 app.get("/single-blog", (req, res) => {
   Blog.findById("69b3e1d9a3e6e64cafa0e94d")
-    .then((result)=>res.send(result))
+    .then((result) => res.send(result))
     .catch((err) => {
       console.error(err);
     });
@@ -75,60 +78,9 @@ app.get("/single-blog", (req, res) => {
 app.get("/", (req, res) => {
   // res.send("<p>Home page</P>")
   // res.sendFile("./Routing/home.html",{root:__dirname})
+  res.redirect("/blogs");
 
-  const blogs = [
-    {
-      title: "Getting Started with JavaScript",
-      snippet:
-        "Learn the fundamentals of JavaScript, including variables, functions, and basic logic to start building interactive web pages.",
-    },
-    {
-      title: "Understanding Flexbox in CSS",
-      snippet:
-        "Flexbox makes layout design easier. Discover how to align, justify, and distribute space among items in a container.",
-    },
-    {
-      title: "A Beginner’s Guide to Node.js",
-      snippet:
-        "Node.js allows JavaScript to run on the server. Explore how it works and how to build simple backend applications.",
-    },
-    {
-      title: "Why Developers Love React",
-      snippet:
-        "React simplifies building dynamic user interfaces using reusable components and a powerful virtual DOM.",
-    },
-    {
-      title: "How APIs Power Modern Web Apps",
-      snippet:
-        "APIs connect different software systems. Learn how REST APIs help frontend and backend communicate.",
-    },
-    {
-      title: "CSS Grid vs Flexbox",
-      snippet:
-        "Both Grid and Flexbox help create layouts. Understand when to use each one for responsive design.",
-    },
-    {
-      title: "Intro to Git and GitHub",
-      snippet:
-        "Version control helps developers track code changes. Learn the basics of Git commands and GitHub workflows.",
-    },
-    {
-      title: "Building Your First Express Server",
-      snippet:
-        "Express.js is a minimal Node framework. See how to create routes and send responses in minutes.",
-    },
-    {
-      title: "Debugging JavaScript Like a Pro",
-      snippet:
-        "Use browser dev tools, breakpoints, and console methods to identify and fix bugs in your code.",
-    },
-    {
-      title: "Responsive Design Best Practices",
-      snippet:
-        "Make your websites look great on any device using media queries, flexible layouts, and modern CSS techniques.",
-    },
-  ];
-  res.render("index", { title: "Home", blogs: blogs });
+  // res.render("index", { title: "Home", blogs: blogs });
 });
 app.get("/about", (req, res) => {
   // res.send("<p>About page</P>")
@@ -140,7 +92,42 @@ app.get("/about", (req, res) => {
 app.get("/about-us", (req, res) => {
   res.redirect("/about");
 });
+//! Blog routes ===========================================
+app.get("/blogs", (req, res) => {
+  Blog.find()
+    .sort({ createdAt: -1 })
+    .then((result) => {
+      res.render("index", { title: "All Blogs", blogs: result });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+app.post("/blogs", (req, res) => {
+  const blog = new Blog(req.body);
 
+  blog
+    .save()
+    .then((result) => {
+      res.redirect("/blogs");
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+app.get("blogs/:id", (req, res) => {
+  const id = req.params.id;
+  //console.log(id);
+  blog
+    .findById()
+    .then((result) => {
+      render("details", { blog: result, title: "Blog details" });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+//?===================================================================
 //!create blog
 app.get("/blogs/create", (req, res) => {
   res.render("create", { title: "create" });
